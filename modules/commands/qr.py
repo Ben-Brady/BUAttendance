@@ -13,5 +13,5 @@ async def qr_command(ctx: ApplicationContext):
         await ctx.send_response(value)
     except qrcode.InvalidQRCode:
         await ctx.send_response.reply("Invalid QR Code")
-    except discord.Response as e:
-        await ctx.send_response(e.msg)
+    except discord.ImageDownloadFailure as e:
+        await ctx.send_response(str(e))
