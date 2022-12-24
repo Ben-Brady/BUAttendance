@@ -1,4 +1,4 @@
-from modules import cispr, config, commands
+from modules import students, cispr, config, commands
 from modules.discord import TaskCog
 import logging
 import discord
@@ -27,9 +27,9 @@ bot.slash_command(
     description="Submit an attendance code link",
 )(commands.link)
 bot.slash_command(
-    name="register",
-    description="Register for automatic attendance",
-)(commands.register)
+    name="manual_register",
+    description="Manually register for automatic attendance",
+)(commands.manual_register)
 bot.slash_command(
     name="unregister",
     description="Unregister for automatic attendance",
