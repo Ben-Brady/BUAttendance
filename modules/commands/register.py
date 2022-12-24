@@ -42,7 +42,7 @@ class RegisterModal(discord.ui.Modal):
         token = self.children[2].value or ""
 
         try:
-            signup.signup_user()(
+            signup.signup_user(
                 user_id=user_id,
                 seminar_group=seminar_group.upper(),
                 email=email,
