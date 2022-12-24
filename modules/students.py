@@ -12,6 +12,10 @@ class Student(BaseModel):
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
+    
+    @property
+    def email(self):
+        return f"s{self.id}@bournemouth.ac.uk"
 
 
 students: list[Student] = []
