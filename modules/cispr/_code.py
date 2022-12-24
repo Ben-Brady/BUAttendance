@@ -11,8 +11,7 @@ class SessionCreationError(Exception):
 
 
 class AttendanceCode(BaseModel):
-    code: str = Field(...,
-                      regex=r"^[A-Za-z0-9]{1,5}_[LS]_[0-9]{1,2}_[0-9]{8}$")
+    code: str = Field(..., regex=r"^[A-Za-z\d]{1,5}_[LS]_\d{1,2}_\d{8}$")
     week: str = Field(..., regex=r"^[0-9]+$")
     academic_year: str = Field(..., regex=r"^[0-9]{2}\/[0-9]{2}$")
     level: str = Field(..., regex=r"^Level [04567]$")
