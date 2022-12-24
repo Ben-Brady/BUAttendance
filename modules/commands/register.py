@@ -1,12 +1,7 @@
-from modules import database, cispr
+from modules import signup
 import string
 import discord
 from discord.commands.context import ApplicationContext
-
-
-async def register_command(ctx: ApplicationContext):
-    modal = RegisterModal(title="Register Automatic Attendance")
-    await ctx.send_modal(modal)
 
 
 class RegisterModal(discord.ui.Modal):
@@ -27,7 +22,7 @@ class RegisterModal(discord.ui.Modal):
             style=discord.InputTextStyle.singleline,
             required=True,
             min_length=26,
-            max_length=100,
+            max_length=26,
             placeholder="s1234567@bournemouth.ac.uk",
         ))
 
@@ -40,16 +35,29 @@ class RegisterModal(discord.ui.Modal):
         ))
 
     async def callback(self, interaction: discord.Interaction):
-        components = interaction.data["components"] # type: ignore
-        
         user_id = interaction.user.id  # type: ignore
-        seminar_group = components[0]["components"][0]["value"]
-        email = components[1]["components"][0]["value"]
-        token = components[2]["components"][0]["value"]
+        seminar_group = self.children[0].value or ""
+        seminar_group = seminar_group.upper()
+        email = self.children[1].value or ""
+        token = self.children[2].value or ""
 
+        try:
+            signup.signup_user()(
+                user_id=user_id,
+                seminar_group=seminar_group.upper(),
+                email=email,
+                token=token,
+            )
+        except signup.SignupFailure as e:
+            title = "Failed To Sign Up"
+            description = f"{e}"
+        else:
+            title = f"Successfully Signed Up"
+            description = f"User: <@{user_id}>"
+        
         embed = discord.Embed(
-            title=f"Successfully Signed Up",
-            description=f"User: <@{user_id}>",
+            title=title,
+            description=description,
             fields=[
                 discord.EmbedField(name="Seminar Group", value=seminar_group),
                 discord.EmbedField(name="Email", value=email),
@@ -57,3 +65,9 @@ class RegisterModal(discord.ui.Modal):
             ],
         )
         await interaction.response.send_message(embeds=[embed])
+
+
+
+async def register_command(ctx: ApplicationContext):
+    modal = RegisterModal(title="Register Automatic Attendance")
+    await ctx.send_modal(modal)
