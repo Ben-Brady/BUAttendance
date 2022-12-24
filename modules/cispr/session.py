@@ -56,7 +56,7 @@ def check_token(token: str) -> bool:
     "Checks if a cirsp token functional"
     try:
         refresh_token(token)
-    except ConnectionRefusedError:
+    except CisprSessionExpiredError:
         return False
     else:
         return True
