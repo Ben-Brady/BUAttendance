@@ -1,4 +1,4 @@
-from . import get_token, AttendanceCode
+from . import get_global_token, AttendanceCode
 import requests
 
 
@@ -14,7 +14,7 @@ def register_attendance(session: AttendanceCode, email: str):
             "Content-Type": "application/x-www-form-urlencoded",
         },
         cookies={
-            "cispr_session": get_token(),
+            "cispr_session": get_global_token(),
         },
         data={
             "_token": "Q7F6ItxUsLKBGxX35jOzFjDflYVeJJjRDapgxkV5",

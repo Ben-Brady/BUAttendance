@@ -9,7 +9,7 @@ KNOWN_TOKEN = "eyJpdiI6Im9EL0gxMWpabjJYVEVlNzNPT0w1NEE9PSIsInZhbHVlIjoiaWhoQnNCK
 def init_token() -> str:
     if not TOKEN_STORE.exists():
         return KNOWN_TOKEN
-    
+
     token = TOKEN_STORE.read_text()
     if token != "":
         return token
@@ -24,32 +24,39 @@ class CisprSessionExpiredError(Exception):
     pass
 
 
-
-def get_token() -> str:
+def get_global_token() -> str:
     return token
 
 
-
-def set_token(new_token: str):
+def set_global_token(new_token: str):
     global token
     token = new_token
     TOKEN_STORE.write_text(token)
 
 
-
-def refresh_token():
+def refresh_token(token: str):
     r = requests.get(
         url="https://cispr.bournemouth.ac.uk/study-progress",
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
         },
         cookies={
-            "cispr_session": get_token()
+            "cispr_session": token
         }
     )
 
-    token = r.cookies.get("cispr_session")
-    if token == None:
+    new_token = r.cookies.get("cispr_session")
+    if new_token == None:
         raise CisprSessionExpiredError
 
-    set_token(token)
+    return new_token
+
+
+def check_token(token: str) -> bool:
+    "Checks if a cirsp token functional"
+    try:
+        refresh_token(token)
+    except ConnectionRefusedError:
+        return False
+    else:
+        return True

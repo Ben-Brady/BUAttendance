@@ -1,4 +1,4 @@
-from . import get_token, CisprSessionExpiredError
+from . import get_global_token, CisprSessionExpiredError
 import logging
 from base64 import b64encode
 import requests
@@ -48,7 +48,7 @@ def parse_link(link: str) -> AttendanceCode:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
         },
         cookies={
-            "cispr_session": get_token(),
+            "cispr_session": get_global_token(),
         },
     )
 
