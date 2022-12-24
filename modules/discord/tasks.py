@@ -5,12 +5,14 @@ import discord
 from discord.ext import tasks
 
 
-
 class TaskCog(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
-        self.task_refresh_global_token.start()
-        self.task_refresh_user_tokens.start()
+
+
+    async def start(self):
+        await self.task_refresh_global_token.start()
+        await self.task_refresh_user_tokens.start()
 
 
     @tasks.loop(hours=1)
