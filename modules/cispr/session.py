@@ -3,7 +3,6 @@ from pathlib import Path
 
 
 TOKEN_STORE = Path("./data/cispr_session")
-KNOWN_TOKEN = "eyJpdiI6Im9EL0gxMWpabjJYVEVlNzNPT0w1NEE9PSIsInZhbHVlIjoiaWhoQnNCK1dwNFhtbUFubHZPLzJFSy9rWWZCcVZ0TDZPcVZxdkdBelhaTVlLTU1ZajRuVW5pQ3NuU0J1ZVREWkpkbU9MT2UxZHkzdXpUV3V1azBRODlZMk16QXZEQTlrTzA5QUxoeTloZlQxV1N0WTQ3NWhnZWhYVGk2eUhLQlIiLCJtYWMiOiI0YWRmZmE1NDkzNzU1NDY5YjdhNGRlYmQ5MmMzMzZmMjU0NzIyNDc2MmUxZGVkZDRiNjZhOTkwNDRkM2U4NTk3IiwidGFnIjoiIn0%3D"
 
 
 class CisprSessionExpiredError(Exception):
@@ -11,14 +10,18 @@ class CisprSessionExpiredError(Exception):
 
 
 def get_global_token() -> str:
+    error = FileNotFoundError(
+        "No token file found"
+        f"Please make sure you've placed your token in {TOKEN_STORE.as_posix()}"
+    )
     if not TOKEN_STORE.exists():
-        return KNOWN_TOKEN
+        raise error
 
     token = TOKEN_STORE.read_text()
-    if token != "":
-        return token
-    else:
-        return KNOWN_TOKEN
+    if token == "":
+        raise error
+    
+    return token
 
 
 def set_global_token(new_token: str):
