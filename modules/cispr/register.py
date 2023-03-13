@@ -6,7 +6,7 @@ class AttendanceFailure(Exception):
     pass
 
 
-def register_attendance(session: AttendanceCode, email: str):
+def register_attendance(code: AttendanceCode, email: str):
     r = requests.post(
         url="https://cispr.bournemouth.ac.uk/study-progress/submit",
         headers={
@@ -15,19 +15,24 @@ def register_attendance(session: AttendanceCode, email: str):
         },
         cookies={
             "cispr_session": get_global_token(),
+            "XSRF-TOKEN": get_global_token(),
         },
         data={
-            "_token": "Q7F6ItxUsLKBGxX35jOzFjDflYVeJJjRDapgxkV5",
+            "_token": "ipp7kIdp3Hd4OoPEekjHeNgsHNq01GPIGuPUFNj3",
             "email_address": email,
-            "level": session.level,
-            "unit_id": session.unit_id,
-            "session_ay": session.academic_year,
-            "session_week": session.week,
-            "session_type": session.type,
-            "attendance_code": session.code,
+            "level": code.level,
+            "unit_id": code.unit_id,
+            "session_ay": code.academic_year,
+            "session_week": code.week,
+            "session_type": code.type,
+            "attendance_code": code.progress_code,
             "disclaimer": "on",
         }
     )
 
-    if r.status_code != 200:
-        raise AttendanceFailure
+    if r.status_code == 302:
+        return
+    elif r.status_code == 419:
+        raise AttendanceFailure("Attendance Code Expired")
+    else:
+        raise AttendanceFailure(f"Unknown Response: {r.status_code}")

@@ -6,7 +6,7 @@ class InvalidConfigException(Exception):
     pass
 
 
-class Config:
+class _Config:
     def __init__(self):
         self.db = PickleDB("./config.json", True, True)
         if not self.db.exists("token"):
@@ -39,3 +39,5 @@ class Config:
     
     token = property(_get_token)
     attendence_channel = property(_get_attendence_channel, _set_attendence_channel)
+
+Config = _Config()

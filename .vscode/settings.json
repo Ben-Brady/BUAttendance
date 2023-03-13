@@ -1,5 +1,4 @@
 {
     "python.testing.pytestEnabled": true,
-    "python.testing.pytestPath": "pytest",
-    "python.testing.pytestArgs": ["-vvv"]
+    "python.testing.pytestPath": "pytest"
 }

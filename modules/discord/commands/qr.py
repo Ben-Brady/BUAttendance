@@ -1,8 +1,8 @@
 from modules import qrcode, discord
-from discord.commands.context import ApplicationContext
+from discord import ApplicationContext, SlashCommand
 
 
-async def qr_command(ctx: ApplicationContext):
+async def _command(ctx: ApplicationContext):
     if ctx.message == None:
         await ctx.send_response("You did not attach a QR code")
         return
@@ -15,3 +15,9 @@ async def qr_command(ctx: ApplicationContext):
         await ctx.send_response.reply("Invalid QR Code")
     except discord.ImageDownloadFailure as e:
         await ctx.send_response(str(e))
+
+qr_command = SlashCommand(
+    func=_command,
+    name="qr",
+    description="",
+)

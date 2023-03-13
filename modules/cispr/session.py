@@ -6,7 +6,11 @@ TOKEN_STORE = Path("./data/cispr_session")
 KNOWN_TOKEN = "eyJpdiI6Im9EL0gxMWpabjJYVEVlNzNPT0w1NEE9PSIsInZhbHVlIjoiaWhoQnNCK1dwNFhtbUFubHZPLzJFSy9rWWZCcVZ0TDZPcVZxdkdBelhaTVlLTU1ZajRuVW5pQ3NuU0J1ZVREWkpkbU9MT2UxZHkzdXpUV3V1azBRODlZMk16QXZEQTlrTzA5QUxoeTloZlQxV1N0WTQ3NWhnZWhYVGk2eUhLQlIiLCJtYWMiOiI0YWRmZmE1NDkzNzU1NDY5YjdhNGRlYmQ5MmMzMzZmMjU0NzIyNDc2MmUxZGVkZDRiNjZhOTkwNDRkM2U4NTk3IiwidGFnIjoiIn0%3D"
 
 
-def init_token() -> str:
+class CisprSessionExpiredError(Exception):
+    pass
+
+
+def get_global_token() -> str:
     if not TOKEN_STORE.exists():
         return KNOWN_TOKEN
 
@@ -17,24 +21,11 @@ def init_token() -> str:
         return KNOWN_TOKEN
 
 
-token = init_token()
-
-
-class CisprSessionExpiredError(Exception):
-    pass
-
-
-def get_global_token() -> str:
-    return token
-
-
 def set_global_token(new_token: str):
-    global token
-    token = new_token
-    TOKEN_STORE.write_text(token)
+    TOKEN_STORE.write_text(new_token)
 
 
-def refresh_token(token: str):
+def refresh_token(token: str) -> str:
     r = requests.get(
         url="https://cispr.bournemouth.ac.uk/study-progress",
         headers={
@@ -42,7 +33,8 @@ def refresh_token(token: str):
         },
         cookies={
             "cispr_session": token
-        }
+        },
+        allow_redirects=False
     )
 
     new_token = r.cookies.get("cispr_session")

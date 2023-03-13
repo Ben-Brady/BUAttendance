@@ -15,9 +15,11 @@ def get_account_name_and_id(token: str) -> tuple[str, int]:
         }
     )
 
-    soup = bs4.BeautifulSoup(r.text, features="html")
+    soup = bs4.BeautifulSoup(r.text, features="html.parser")
     name_elem = soup.find(
-        "div", attrs={"class": "text-base font-medium leading-none mb-1"})
+        name="div",
+        attrs={"class": "text-base font-medium leading-none mb-1"}
+    )
     if not name_elem:
         raise CisprSessionExpiredError("Could not extract data from page")
 

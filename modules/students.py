@@ -23,9 +23,18 @@ students: list[Student] = []
 
 def load():
     students.clear()
-
-    with open("./data/students.json") as f:
-        students_data = json.load(f)
+    try:
+        with open("./data/students.json") as f:
+            students_data = json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Please place a valid student list at ./data/students.json\n"
+            'Example File:\n'
+            '[\n'
+            '    {"id": 1234567, "seminar_group": "A", "first_name": "AAA", "last_name": "BBB" },\n'
+            '    {"id": 7654321, "seminar_group": "B", "first_name": "CCC", "last_name": "DDD" }\n'
+            ']\n'
+        )
 
     for data in students_data:
         student = Student.parse_obj(data)
@@ -54,16 +63,3 @@ def from_id(id: int) -> Student | None:
             return student
     
     return None
-
-
-try:
-    load()
-except Exception:
-    raise FileNotFoundError(
-        "Please place a valid student list at ./data/students.json\n"
-        'Example File:\n'
-        '[\n'
-        '    {"id": 1234567, "seminar_group": "A", "first_name": "AAA", "last_name": "BBB" },\n'
-        '    {"id": 7654321, "seminar_group": "B", "first_name": "CCC", "last_name": "DDD" }\n'
-        ']\n'
-    )

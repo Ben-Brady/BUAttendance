@@ -1,26 +1,44 @@
-from modules import signup, cispr, students
+from modules import cispr, students, attendance, database
+from modules.attendance import signup
 import string
 import discord
-from discord.commands.context import ApplicationContext
+from discord import ApplicationContext, SlashCommand
 
 
-async def register_command(ctx: ApplicationContext, token: str):
+
+async def _command(ctx: ApplicationContext, token: str):
+    if database.users.exists(ctx.user.id):
+        await ctx.response.send_message(
+            content="Your Already Registered for Automatic Attendance! :smiley:",
+            ephemeral=True,
+        )
+        return
+        
     if not cispr.check_token(token):
-        await ctx.response.send_message("Your session token didn't work")
+        await ctx.response.send_message(
+            content="Your session token didn't work",
+            ephemeral=True,
+        )
         return
 
     name, id = cispr.get_account_name_and_id(token)
     student = students.from_id(id)
     if student:
+        attendance.signup_user(
+            discord_id=ctx.user.id,
+            student_id=student.id,
+            # email=student.email,
+            # seminar_group=student.seminar_group,
+            token=token,
+        )
         embed = construct_success_embed(student, ctx.user.id)
         await ctx.response.send_message(embed=embed, delete_after=60)
     else:
         all_students = students.search_name(name)
         await ctx.response.send_message(
             view=student_selection(all_students),
-            delete_after=60
+            ephemeral=True,
         )
-
 
 def student_selection(students: list[students.Student]):
     class StudentSelectView(discord.ui.View):
@@ -43,7 +61,8 @@ def student_selection(students: list[students.Student]):
                 students
             )
             student = next(selected_student)
-            embed = construct_success_embed(student, interaction.user.id) # type: ignore
+            embed = construct_success_embed(
+                student, interaction.user.id)  # type: ignore
             await interaction.response.send_message(embed=embed, delete_after=60)
 
     return StudentSelectView()
@@ -52,10 +71,17 @@ def student_selection(students: list[students.Student]):
 def construct_success_embed(student: students.Student, discord_id: int) -> discord.Embed:
     embed = discord.Embed(
         title="Sucessfully Signed Up",
-        description=f"<@{discord_id}>"
+        description=f"<@{discord_id}>",
     )
     embed.add_field(name="Name", value=student.name)
     embed.add_field(name="Student Id", value=str(student.id))
     embed.add_field(name="Email", value=student.email)
-    embed.add_field(name="Seminar Group", value=f"COMP4/{student.seminar_group}")
+    embed.add_field(name="Seminar Group",
+                    value=f"COMP4/{student.seminar_group}")
     return embed
+
+subscribe_command = SlashCommand(
+    func=_command,
+    name="subscribe",
+    description="Subscribe to automatic attendance",
+)
